@@ -5,6 +5,7 @@
 package fayerbird.core;
 
 import fayerbird.gui.PinVentana;
+import fayerbird.gui.Ventana;
 import java.awt.Desktop;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -57,6 +58,7 @@ public class Autenticador {
                     twitter = new TwitterFactory(configBuilder.build()).getInstance();
                 } finally {
                     objectIn.close();
+                    this.atEnd();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -150,6 +152,7 @@ public class Autenticador {
 
     public void setAccessToken(AccessToken accessToken) {
         this.accessToken = accessToken;
+        twitter.setOAuthAccessToken(this.accessToken);
     }
 
     public RequestToken getRequestToken() {
@@ -158,8 +161,12 @@ public class Autenticador {
 
     public void setRequestToken(RequestToken requestToken) {
         this.requestToken = requestToken;
+
     }
     
+    public void atEnd(){
+        new Ventana(this).setVisible(true);
+    }
     
     
 }

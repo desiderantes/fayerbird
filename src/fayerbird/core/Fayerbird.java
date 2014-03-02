@@ -22,7 +22,7 @@ public class Fayerbird {
     public static void main(String[] args) {
         try {
             Autenticador auth = new Autenticador();
-            new Ventana(auth).setVisible(true);
+            
         } catch (IOException ex) {
             Logger.getLogger(Fayerbird.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TwitterException ex) {
