@@ -20,14 +20,6 @@ public class Fayerbird {
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) {
-		try {
-			Autenticador auth = new Autenticador();
-
-		} catch (IOException ex) {
-			Logger.getLogger(Fayerbird.class.getName()).log(Level.SEVERE, null, ex);
-		} catch (TwitterException ex) {
-			Logger.getLogger(Fayerbird.class.getName()).log(Level.SEVERE, null, ex);
-		}
 		/* Set the Nimbus look and feel */
 		//<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -35,9 +27,21 @@ public class Fayerbird {
 		 */
 		try {
 			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-				if ("Nimbus".equals(info.getName())) {
+				if ("GTK".equals(info.getName())) {
 					javax.swing.UIManager.setLookAndFeel(info.getClassName());
 					break;
+				} else if ("Windows".equals(info.getName())) {
+					javax.swing.UIManager.setLookAndFeel(info.getClassName());
+					break;
+
+				} else if ("Aqua".equals(info.getName())) {
+					javax.swing.UIManager.setLookAndFeel(info.getClassName());
+					break;
+				} if ("Nimbus".equals(info.getName())) {
+					javax.swing.UIManager.setLookAndFeel(info.getClassName());
+					break;
+				} else {
+					javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
 				}
 			}
 		} catch (ClassNotFoundException ex) {
@@ -50,6 +54,18 @@ public class Fayerbird {
 			java.util.logging.Logger.getLogger(Ventana.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 		}
 		//</editor-fold>
+		
+		
+		
+		try {
+			Autenticador auth = new Autenticador();
+			new Ventana(auth).setVisible(true);
+		} catch (IOException ex) {
+			Logger.getLogger(Fayerbird.class.getName()).log(Level.SEVERE, null, ex);
+		} catch (TwitterException ex) {
+			Logger.getLogger(Fayerbird.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		
 
 
 

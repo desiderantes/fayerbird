@@ -164,6 +164,6 @@ public class Autenticador {
 	}
 
 	public void atEnd() {
-		new Ventana(this).setVisible(true);
+		//new Ventana(this).setVisible(true);
 	}
 }
