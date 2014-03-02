@@ -4,6 +4,7 @@
  */
 package fayerbird.core;
 
+import fayerbird.gui.PinVentana;
 import java.awt.Desktop;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -35,7 +36,8 @@ public class Autenticador {
 
     private Twitter twitter;
     private ConfigurationBuilder configBuilder;
-
+    private RequestToken requestToken;
+    private AccessToken accessToken;
     private File logfile;
 
     public Autenticador() throws IOException, TwitterException { //Constructor de la clase
@@ -60,57 +62,59 @@ public class Autenticador {
                 e.printStackTrace();
             }
         } else {
-           
+
             configBuilder.setOAuthConsumerKey("DI05nv99UI3wSSlqI6qJaA");
             configBuilder.setOAuthConsumerSecret("P3RVFt0q11edhdEuwRIJRead13F7orXLjwawjRatW2k");
             twitter = new TwitterFactory(configBuilder.build()).getInstance();
-            RequestToken requestToken;
-            AccessToken accessToken;
+
             requestToken = null;
             accessToken = null;
             String url = null;
-            do {
-                try {
-                    requestToken = twitter.getOAuthRequestToken();
-                    System.out.println("Request Tokens obtenidos con éxito.");
-                    System.out.println("Request Token: " + requestToken.getToken());
-                    System.out.println("Request Token secret: " + requestToken.getTokenSecret());
-                    url = requestToken.getAuthorizationURL();
-                    System.out.println("URL:");
-                    System.out.println(url);
-                } catch (TwitterException ex) {
-                    Logger.getLogger(Fayerbird.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-                if (Desktop.isDesktopSupported()) {
-                    Desktop desktop = Desktop.getDesktop();
-                    try {
-                        desktop.browse(new URI(url));
-                    } catch (Exception e) {
-                        
-                        e.printStackTrace();
-                    }
-                } else {
-                    Runtime runtime = Runtime.getRuntime();
-                    try {
-                        runtime.exec("xdg-open " + url);
-                    } catch (IOException e) {
-                        
-                        e.printStackTrace();
-                    }
-                }
-                //Nos avisa de que introduciremos el PIN a continuación
-                System.out.print("Introduce el PIN del navegador y pulsa intro.\n\n PIN: ");
-//Leemos el PIN
-                String pin = input.readLine();
-                if (pin.length() > 0) {
-                    accessToken = twitter.getOAuthAccessToken(requestToken, pin);
-                } else {
-                    accessToken = twitter.getOAuthAccessToken(requestToken);
-                }
-            } while (accessToken == null);
-            
             try {
+                requestToken = twitter.getOAuthRequestToken();
+                System.out.println("Request Tokens obtenidos con éxito.");
+                System.out.println("Request Token: " + requestToken.getToken());
+                System.out.println("Request Token secret: " + requestToken.getTokenSecret());
+                url = requestToken.getAuthorizationURL();
+                System.out.println("URL:");
+                System.out.println(url);
+            } catch (TwitterException ex) {
+                Logger.getLogger(Fayerbird.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                try {
+                    desktop.browse(new URI(url));
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+            } else {
+                Runtime runtime = Runtime.getRuntime();
+                try {
+                    runtime.exec("xdg-open " + url);
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+            }
+            
+            PinVentana vent = new PinVentana(this);
+            vent.setVisible(true);
+
+            
+        }
+
+       
+
+    }
+
+    public ConfigurationBuilder getConfigBuilder() {
+        return configBuilder;
+    }
+    public void escribirArchivo(){
+        try {
                 OutputStream file = new FileOutputStream(logfile);
                 OutputStream buffer = new BufferedOutputStream(file);
                 ObjectOutput output = new ObjectOutputStream(buffer);
@@ -128,21 +132,34 @@ public class Autenticador {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-
-        System.out.println("\n\nAccess Tokens obtenidos con éxito.");
-        System.out.println("Access Token: " + twitter.getOAuthAccessToken().getToken());
-        System.out.println("Access Token secret: " + twitter.getOAuthAccessToken().getTokenSecret());
-       
     }
 
-    public ConfigurationBuilder getConfigBuilder() {
-        return configBuilder;
+    public File getLogfile() {
+        return logfile;
     }
-
+    
+    
+    
     public Twitter getTwitter() {
         return twitter;
     }
+
+    public AccessToken getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(AccessToken accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public RequestToken getRequestToken() {
+        return requestToken;
+    }
+
+    public void setRequestToken(RequestToken requestToken) {
+        this.requestToken = requestToken;
+    }
+    
     
     
 }

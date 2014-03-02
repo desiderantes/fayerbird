@@ -22,6 +22,7 @@ public class Fayerbird {
     public static void main(String[] args) {
         try {
             Autenticador auth = new Autenticador();
+            new Ventana(auth).setVisible(true);
         } catch (IOException ex) {
             Logger.getLogger(Fayerbird.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TwitterException ex) {
@@ -49,13 +50,8 @@ public class Fayerbird {
             java.util.logging.Logger.getLogger(Ventana.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            public void run() {
-                new Ventana().setVisible(true);
-            }
-        });
+     
+                
+        
     }
 }
