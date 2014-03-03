@@ -11,17 +11,17 @@
 package fayerbird.gui;
 
 import fayerbird.core.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
+import twitter4j.PagableResponseList;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.TwitterStream;
 import twitter4j.User;
 
 /**
@@ -31,37 +31,67 @@ import twitter4j.User;
 public class Ventana extends javax.swing.JFrame {
 
 	private Autenticador auth;
-	Twitter twitter;
+	TwitterStream twitter;
+	Twitter tw;
 	DefaultListModel statuses = new DefaultListModel();
-
+	DefaultListModel hashtags = new DefaultListModel();
+	DefaultListModel following = new DefaultListModel();
+	DefaultListModel followed = new DefaultListModel();
+	DefaultListModel personal = new DefaultListModel();
+	StreamHandler listener = new StreamHandler(statuses);
+	StreamHandler ownListener = new StreamHandler(statuses);
 	/** Creates new form Ventana */
 	public Ventana(Autenticador authen) {
-		try {
+		
 			this.auth = authen;
 			this.twitter = auth.getTwitter();
 			initComponents();
 			setTitle("Fayerbird Twitter Client");
-			User usuario = twitter.showUser(twitter.getId());
-			URL imgURL = new URL(usuario.getProfileImageURL());
-			ImageIcon img = new ImageIcon(imgURL);
+			//User usuario = twitter.showUser(twitter.getId());
+			//URL imgURL = new URL(usuario.getProfileImageURL());
+			//ImageIcon img = new ImageIcon(imgURL);
 			//jLabel1.setIcon(img);
-			actualizar();
-			setVisible(true);
-		} catch (MalformedURLException ex) {
-			Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+			tw = auth.getTw();
+		try {
+			this.actualizar();
 		} catch (TwitterException ex) {
 			Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
 		}
+			twitter.addListener(listener);
+			twitter.user();
+			this.doUpdates();
+			this.setVisible(true);
+		
 	}
 
+	public void doUpdates(){
+		try {
+			PagableResponseList<User> imFollowing = tw.getFriendsList(tw.getScreenName(), 150);
+			PagableResponseList<User> followsMe = tw.getFollowersList(tw.getScreenName(), 150);
+			for(User u: imFollowing ){
+				following.addElement(u);
+				
+			}
+			for (User u: followsMe){
+				followed.addElement(u);
+			}
+		} catch (TwitterException ex) {
+			Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+		} catch (IllegalStateException ex) {
+			Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		
+	}
+	
 	public void actualizar() throws TwitterException {
 		Paging pagina = new Paging();
 		pagina.setCount(50);
-		ResponseList<Status> listado = twitter.getHomeTimeline(pagina);
+		ResponseList<Status> listado = tw.getHomeTimeline(pagina);
 		for (int i = 0; i < listado.size(); i++) {
 			statuses.addElement(listado.get(i));
 		}
 	}
+	
 
 	/** This method is called from within the constructor to
 	 * initialize the form.
@@ -77,10 +107,9 @@ public class Ventana extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
         jPanel1 = new javax.swing.JPanel();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jTextField1 = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jSplitPane4 = new javax.swing.JSplitPane();
         jPanel4 = new javax.swing.JPanel();
@@ -109,18 +138,21 @@ public class Ventana extends javax.swing.JFrame {
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
         jList1.setModel(statuses);
-        jList1.setCellRenderer(new TweetPanel(twitter));
+        jList1.setCellRenderer(new TweetPanel());
         jScrollPane3.setViewportView(jList1);
 
         jSplitPane1.setTopComponent(jScrollPane3);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane4.setViewportView(jTextArea1);
-
         jLabel1.setText("Enviar un tweet");
 
         jButton1.setText("Enviar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jTextField1.setToolTipText("Escriba aquí su tweet :D");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -132,7 +164,7 @@ public class Ventana extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 445, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addContainerGap())
-            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
+            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -141,7 +173,7 @@ public class Ventana extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE))
+                .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE))
         );
 
         jSplitPane1.setRightComponent(jPanel1);
@@ -163,11 +195,8 @@ public class Ventana extends javax.swing.JFrame {
 
         jSplitPane4.setTopComponent(jPanel4);
 
-        jList5.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jList5.setModel(personal);
+        jList5.setCellRenderer(new TweetPanel());
         jScrollPane8.setViewportView(jList5);
 
         jSplitPane4.setRightComponent(jScrollPane8);
@@ -178,11 +207,7 @@ public class Ventana extends javax.swing.JFrame {
 
         jSplitPane3.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
-        jList2.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jList2.setModel(hashtags);
         jList2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jList2.setLayoutOrientation(javax.swing.JList.HORIZONTAL_WRAP);
         jScrollPane7.setViewportView(jList2);
@@ -198,11 +223,8 @@ public class Ventana extends javax.swing.JFrame {
 
         jLabel2.setText("Te siguen");
 
-        jList3.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jList3.setModel(followed);
+        jList3.setCellRenderer(new UserPanel());
         jScrollPane5.setViewportView(jList3);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -227,11 +249,8 @@ public class Ventana extends javax.swing.JFrame {
 
         jLabel3.setText("Siguiendo");
 
-        jList4.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jList4.setModel(following);
+        jList4.setCellRenderer(new UserPanel());
         jScrollPane6.setViewportView(jList4);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -250,7 +269,7 @@ public class Ventana extends javax.swing.JFrame {
                 .addGap(12, 12, 12)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE))
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE))
         );
 
         jSplitPane2.setLeftComponent(jPanel3);
@@ -270,6 +289,19 @@ public class Ventana extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+		if(!"".equals(jTextField1.getText())){
+            try {
+                //Escribir tweet
+                Status tweetEscrito=tw.updateStatus(jTextField1.getText());
+                jTextField1.setText("");
+            } catch (TwitterException ex) {
+                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+	}//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
@@ -287,7 +319,6 @@ public class Ventana extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
@@ -297,6 +328,6 @@ public class Ventana extends javax.swing.JFrame {
     private javax.swing.JSplitPane jSplitPane3;
     private javax.swing.JSplitPane jSplitPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }

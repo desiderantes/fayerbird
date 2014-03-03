@@ -5,7 +5,6 @@
 package fayerbird.core;
 
 import fayerbird.gui.PinVentana;
-import fayerbird.gui.Ventana;
 import java.awt.Desktop;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -23,10 +22,13 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import twitter4j.Twitter;
+import twitter4j.TwitterStream;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.TwitterStreamFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
+import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 /**
@@ -35,11 +37,13 @@ import twitter4j.conf.ConfigurationBuilder;
  */
 public class Autenticador {
 
-	private Twitter twitter;
+	private TwitterStream twitter;
 	private ConfigurationBuilder configBuilder;
 	private RequestToken requestToken;
 	private AccessToken accessToken;
 	private File logfile;
+	private Configuration config;
+	private Twitter tw;
 
 	public Autenticador() throws IOException, TwitterException { //Constructor de la clase
 		logfile = new File("auth_file.txt");
@@ -55,7 +59,9 @@ public class Autenticador {
 					configBuilder.setOAuthConsumerSecret(authString.get(1));
 					configBuilder.setOAuthAccessToken(authString.get(2));
 					configBuilder.setOAuthAccessTokenSecret(authString.get(3));
-					twitter = new TwitterFactory(configBuilder.build()).getInstance();
+					config = configBuilder.build();
+					twitter = new TwitterStreamFactory(config).getInstance();
+					tw = new TwitterFactory(config).getInstance();
 				} finally {
 					objectIn.close();
 					this.atEnd();
@@ -67,8 +73,9 @@ public class Autenticador {
 
 			configBuilder.setOAuthConsumerKey("DI05nv99UI3wSSlqI6qJaA");
 			configBuilder.setOAuthConsumerSecret("P3RVFt0q11edhdEuwRIJRead13F7orXLjwawjRatW2k");
-			twitter = new TwitterFactory(configBuilder.build()).getInstance();
-
+			config = configBuilder.build();
+			twitter = new TwitterStreamFactory(config).getInstance();
+			tw = new TwitterFactory(config).getInstance();
 			requestToken = null;
 			accessToken = null;
 			String url = null;
@@ -141,7 +148,7 @@ public class Autenticador {
 		return logfile;
 	}
 
-	public Twitter getTwitter() {
+	public TwitterStream getTwitter() {
 		return twitter;
 	}
 
@@ -161,6 +168,14 @@ public class Autenticador {
 	public void setRequestToken(RequestToken requestToken) {
 		this.requestToken = requestToken;
 
+	}
+
+	public Configuration getConfig() {
+		return config;
+	}
+	
+	public Twitter getTw(){
+		return tw;
 	}
 
 	public void atEnd() {

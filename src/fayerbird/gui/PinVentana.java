@@ -14,7 +14,7 @@ import fayerbird.core.Autenticador;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import twitter4j.Twitter;
+import twitter4j.TwitterStream;
 import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
@@ -27,7 +27,7 @@ public class PinVentana extends javax.swing.JFrame {
 
 	private RequestToken reqToken;
 	private AccessToken acToken;
-	private Twitter twitter;
+	private TwitterStream twitter;
 	private Autenticador auth;
 
 	/** Creates new form PinVentana */
