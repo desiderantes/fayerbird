@@ -248,6 +248,18 @@ public class Ventana extends javax.swing.JFrame {
 
         jSplitPane4.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
+        picLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        picLabel.setNextFocusableComponent(nameLabel);
+
+        bioLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        bioLabel.setMaximumSize(new java.awt.Dimension(400, 100));
+        bioLabel.setNextFocusableComponent(locationLabel);
+
+        locationLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
+        nameLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        nameLabel.setNextFocusableComponent(bioLabel);
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -258,7 +270,7 @@ public class Ventana extends javax.swing.JFrame {
                         .addGap(213, 213, 213)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(nameLabel)
-                            .addComponent(bioLabel)
+                            .addComponent(bioLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(locationLabel)))
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(221, 221, 221)
@@ -273,7 +285,7 @@ public class Ventana extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(nameLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(bioLabel)
+                .addComponent(bioLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(locationLabel)
                 .addGap(16, 16, 16))

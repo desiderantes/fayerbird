@@ -206,12 +206,36 @@
                   </Layout>
                   <SubComponents>
                     <Component class="javax.swing.JLabel" name="picLabel">
+                      <Properties>
+                        <Property name="verticalAlignment" type="int" value="1"/>
+                        <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+                          <ComponentRef name="nameLabel"/>
+                        </Property>
+                      </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="bioLabel">
+                      <Properties>
+                        <Property name="verticalAlignment" type="int" value="1"/>
+                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                          <Dimension value="[400, 100]"/>
+                        </Property>
+                        <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+                          <ComponentRef name="locationLabel"/>
+                        </Property>
+                      </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="locationLabel">
+                      <Properties>
+                        <Property name="verticalAlignment" type="int" value="1"/>
+                      </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="nameLabel">
+                      <Properties>
+                        <Property name="verticalAlignment" type="int" value="1"/>
+                        <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+                          <ComponentRef name="bioLabel"/>
+                        </Property>
+                      </Properties>
                     </Component>
                   </SubComponents>
                 </Container>
