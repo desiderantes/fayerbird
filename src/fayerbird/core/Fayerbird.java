@@ -27,21 +27,16 @@ public class Fayerbird {
 		 */
 		try {
 			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-				if ("GTK".equals(info.getName())) {
+				if (info.getName().contains("GTK")) {
 					javax.swing.UIManager.setLookAndFeel(info.getClassName());
 					break;
-				} else if ("Windows".equals(info.getName())) {
+				} else if (info.getName().contains("Windows")) {
 					javax.swing.UIManager.setLookAndFeel(info.getClassName());
 					break;
 
-				} else if ("Aqua".equals(info.getName())) {
+				} else if (info.getName().contains("Aqua")) {
 					javax.swing.UIManager.setLookAndFeel(info.getClassName());
 					break;
-				} if ("Nimbus".equals(info.getName())) {
-					javax.swing.UIManager.setLookAndFeel(info.getClassName());
-					break;
-				} else {
-					javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
 				}
 			}
 		} catch (ClassNotFoundException ex) {

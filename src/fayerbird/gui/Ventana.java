@@ -11,17 +11,28 @@
 package fayerbird.gui;
 
 import fayerbird.core.*;
+import java.util.AbstractSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import twitter4j.Location;
 import twitter4j.PagableResponseList;
 import twitter4j.Paging;
 import twitter4j.ResponseList;
 import twitter4j.Status;
+import twitter4j.Trend;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.TwitterStream;
+import twitter4j.TwitterStreamFactory;
 import twitter4j.User;
 
 /**
@@ -32,6 +43,7 @@ public class Ventana extends javax.swing.JFrame {
 
 	private Autenticador auth;
 	TwitterStream twitter;
+	TwitterStream hashStream;
 	Twitter tw;
 	DefaultListModel statuses = new DefaultListModel();
 	DefaultListModel hashtags = new DefaultListModel();
@@ -40,11 +52,14 @@ public class Ventana extends javax.swing.JFrame {
 	DefaultListModel personal = new DefaultListModel();
 	StreamHandler listener = new StreamHandler(statuses);
 	StreamHandler ownListener = new StreamHandler(statuses);
+	List<Location> locations= new ArrayList<Location>();
 	/** Creates new form Ventana */
 	public Ventana(Autenticador authen) {
 		
 			this.auth = authen;
 			this.twitter = auth.getTwitter();
+			this.hashStream = new TwitterStreamFactory(auth.getConfig()).getInstance();
+			
 			initComponents();
 			setTitle("Fayerbird Twitter Client");
 			//User usuario = twitter.showUser(twitter.getId());
@@ -52,28 +67,70 @@ public class Ventana extends javax.swing.JFrame {
 			//ImageIcon img = new ImageIcon(imgURL);
 			//jLabel1.setIcon(img);
 			tw = auth.getTw();
-		try {
+			this.followUpdates();
+			this.getProfile();
+			this.setStatistics();
+		
 			this.actualizar();
-		} catch (TwitterException ex) {
-			Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
-		}
+		
 			twitter.addListener(listener);
 			twitter.user();
-			this.doUpdates();
+			
 			this.setVisible(true);
 		
 	}
-
-	public void doUpdates(){
+	
+	public void getProfile(){
 		try {
-			PagableResponseList<User> imFollowing = tw.getFriendsList(tw.getScreenName(), 150);
-			PagableResponseList<User> followsMe = tw.getFollowersList(tw.getScreenName(), 150);
+			User me = tw.showUser(tw.getScreenName());
+			picLabel.setIcon(new ImageIcon(me.getBiggerProfileImageURL()));
+			nameLabel.setText(me.getName());
+			bioLabel.setText(me.getDescription());
+			locationLabel.setText(me.getLocation());
+		} catch (TwitterException ex) {
+			Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	
+	}
+
+	public void setStatistics(){
+		try {
+			locations.addAll(tw.getAvailableTrends());
+		} catch (TwitterException ex) {
+			Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		HashSet<Trend> set = new HashSet<Trend>();
+		for(Location loc : locations){
+			try {
+				set.addAll(Arrays.asList(tw.getPlaceTrends(loc.getWoeid()).getTrends()));
+			} catch (TwitterException ex) {
+				Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		for(Trend tr : set){
+			hashtags.addElement(tr);
+		}
+	}
+	
+	public void followUpdates(){
+		try {
+			PagableResponseList<User> imFollowing = tw.getFriendsList(tw.getScreenName(), -1);
+			PagableResponseList<User> followsMe = tw.getFollowersList(tw.getScreenName(), -1);
+			long c1 = -1;
+			long c2 = -1;
+			while (c1 != 0){
 			for(User u: imFollowing ){
 				following.addElement(u);
 				
 			}
+			c1 = imFollowing.getNextCursor();
+			imFollowing = tw.getFriendsList(tw.getScreenName(), c1);
+			}while(c2 !=0){
 			for (User u: followsMe){
 				followed.addElement(u);
+			}
+			c2 = followsMe.getNextCursor();
+			followsMe = tw.getFollowersList(tw.getScreenName(), c2);
 			}
 		} catch (TwitterException ex) {
 			Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
@@ -83,10 +140,15 @@ public class Ventana extends javax.swing.JFrame {
 		
 	}
 	
-	public void actualizar() throws TwitterException {
+	public void actualizar()  {
 		Paging pagina = new Paging();
-		pagina.setCount(50);
-		ResponseList<Status> listado = tw.getHomeTimeline(pagina);
+		pagina.setCount(70);
+		ArrayList<Status> listado = new ArrayList<Status>();
+		try {
+			listado.addAll(tw.getHomeTimeline(pagina));
+		} catch (TwitterException ex) {
+			Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+		}
 		for (int i = 0; i < listado.size(); i++) {
 			statuses.addElement(listado.get(i));
 		}
@@ -113,6 +175,10 @@ public class Ventana extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jSplitPane4 = new javax.swing.JSplitPane();
         jPanel4 = new javax.swing.JPanel();
+        picLabel = new javax.swing.JLabel();
+        bioLabel = new javax.swing.JLabel();
+        locationLabel = new javax.swing.JLabel();
+        nameLabel = new javax.swing.JLabel();
         jScrollPane8 = new javax.swing.JScrollPane();
         jList5 = new javax.swing.JList();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -186,11 +252,31 @@ public class Ventana extends javax.swing.JFrame {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 594, Short.MAX_VALUE)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(213, 213, 213)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(nameLabel)
+                            .addComponent(bioLabel)
+                            .addComponent(locationLabel)))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(221, 221, 221)
+                        .addComponent(picLabel)))
+                .addContainerGap(381, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addGap(66, 66, 66)
+                .addComponent(picLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(nameLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(bioLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(locationLabel)
+                .addGap(16, 16, 16))
         );
 
         jSplitPane4.setTopComponent(jPanel4);
@@ -303,6 +389,7 @@ public class Ventana extends javax.swing.JFrame {
 	}//GEN-LAST:event_jButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel bioLabel;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -329,5 +416,8 @@ public class Ventana extends javax.swing.JFrame {
     private javax.swing.JSplitPane jSplitPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel locationLabel;
+    private javax.swing.JLabel nameLabel;
+    private javax.swing.JLabel picLabel;
     // End of variables declaration//GEN-END:variables
 }
