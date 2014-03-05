@@ -14,7 +14,7 @@ import fayerbird.core.Autenticador;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import twitter4j.TwitterStream;
+import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
@@ -27,7 +27,7 @@ public class PinVentana extends javax.swing.JFrame {
 
 	private RequestToken reqToken;
 	private AccessToken acToken;
-	private TwitterStream twitter;
+	private Twitter twitter;
 	private Autenticador auth;
 
 	/** Creates new form PinVentana */
@@ -35,7 +35,7 @@ public class PinVentana extends javax.swing.JFrame {
 		this.auth = auth;
 		this.reqToken = auth.getRequestToken();
 		this.acToken = auth.getAccessToken();
-		this.twitter = auth.getTwitter();
+		this.twitter = auth.getTw();
 
 		initComponents();
 		this.setTitle("La aplicación requiere autenticación");
@@ -105,8 +105,8 @@ public class PinVentana extends javax.swing.JFrame {
 			System.out.println("Access Token secret: " + twitter.getOAuthAccessToken().getTokenSecret());
 			auth.escribirArchivo();
 			try {
-				auth.atEnd();
-				this.finalize();
+				new Ventana(auth).setVisible(true);
+				this.dispose();
 			} catch (Throwable ex) {
 				Logger.getLogger(PinVentana.class.getName()).log(Level.SEVERE, null, ex);
 			}

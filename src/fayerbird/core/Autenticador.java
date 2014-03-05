@@ -5,6 +5,7 @@
 package fayerbird.core;
 
 import fayerbird.gui.PinVentana;
+import fayerbird.gui.Ventana;
 import java.awt.Desktop;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -60,11 +61,11 @@ public class Autenticador {
 					configBuilder.setOAuthAccessToken(authString.get(2));
 					configBuilder.setOAuthAccessTokenSecret(authString.get(3));
 					config = configBuilder.build();
-					twitter = new TwitterStreamFactory(config).getInstance();
 					tw = new TwitterFactory(config).getInstance();
+					twitter = new TwitterStreamFactory(config).getInstance();
 				} finally {
 					objectIn.close();
-					this.atEnd();
+					new Ventana(this).setVisible(true);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -74,13 +75,13 @@ public class Autenticador {
 			configBuilder.setOAuthConsumerKey("DI05nv99UI3wSSlqI6qJaA");
 			configBuilder.setOAuthConsumerSecret("P3RVFt0q11edhdEuwRIJRead13F7orXLjwawjRatW2k");
 			config = configBuilder.build();
-			twitter = new TwitterStreamFactory(config).getInstance();
 			tw = new TwitterFactory(config).getInstance();
+			twitter = new TwitterStreamFactory(config).getInstance();
 			requestToken = null;
 			accessToken = null;
 			String url = null;
 			try {
-				requestToken = twitter.getOAuthRequestToken();
+				requestToken = tw.getOAuthRequestToken();
 				System.out.println("Request Tokens obtenidos con éxito.");
 				System.out.println("Request Token: " + requestToken.getToken());
 				System.out.println("Request Token secret: " + requestToken.getTokenSecret());
@@ -178,7 +179,5 @@ public class Autenticador {
 		return tw;
 	}
 
-	public void atEnd() {
-		//new Ventana(this).setVisible(true);
-	}
+	
 }

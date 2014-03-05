@@ -54,7 +54,7 @@ public class Fayerbird {
 		
 		try {
 			Autenticador auth = new Autenticador();
-			new Ventana(auth).setVisible(true);
+			
 		} catch (IOException ex) {
 			Logger.getLogger(Fayerbird.class.getName()).log(Level.SEVERE, null, ex);
 		} catch (TwitterException ex) {
